@@ -41,10 +41,8 @@ future without warning.**
 ## Installing
 
 ```shell
-go get -d -u github.com/codahale/sneaker
-cd $GOPATH/src/github.com/codahale/sneaker
-make install
-sneaker version
+cd cmd/sneaker
+go build
 ```
 
 ## Using
