@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 	"text/tabwriter"
 
@@ -24,6 +25,7 @@ Usage:
   sneaker ls [<pattern>]
   sneaker upload <file> <path>
   sneaker download <path> <file>
+  sneaker gather <pattern> <path>
   sneaker rm <path>
   sneaker pack <pattern> <file> [--key=<id>] [--context=<k1=v2,k2=v2>]
   sneaker unpack <file> <path> [--context=<k1=v2,k2=v2>]
@@ -108,6 +110,29 @@ func main() {
 			log.Fatal(err)
 		}
 		out.Write(actual[path])
+	} else if args["gather"] == true {
+		pattern := args["<pattern>"].(string)
+		path := args["<path>"].(string)
+		
+		// list files
+		files, err := manager.List(pattern)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for _, file := range files {
+			dest := path + "/" + filepath.Base(file.Path)
+			log.Printf("Downloading %s to %s", file.Path, dest)
+
+			out := openPath(dest, os.Create, os.Stdout)
+			defer out.Close()
+
+			actual, err := manager.Download([]string{file.Path})
+			if err != nil {
+				log.Fatal(err)
+			}
+			out.Write(actual[file.Path])
+		}
 	} else if args["rm"] == true {
 		path := args["<path>"].(string)
 

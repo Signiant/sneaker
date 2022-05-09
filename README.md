@@ -130,6 +130,12 @@ You can download a single file:
 sneaker download example/secret.txt secret.txt
 ```
 
+You can also download multiple files into a single folder:
+
+```shell
+sneaker gather "example/*.txt,other/*.txt" output-dir/
+```
+
 Finally, you can delete the file:
 
 ```shell
