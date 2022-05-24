@@ -3,6 +3,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"log"
@@ -12,9 +13,9 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/kms"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/kms"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/codahale/sneaker"
 	"github.com/docopt/docopt-go"
 )
@@ -113,7 +114,7 @@ func main() {
 	} else if args["gather"] == true {
 		pattern := args["<pattern>"].(string)
 		path := args["<path>"].(string)
-		
+
 		// list files
 		files, err := manager.List(pattern)
 		if err != nil {
@@ -244,10 +245,14 @@ func loadManager() *sneaker.Manager {
 		log.Fatalf("bad SNEAKER_MASTER_CONTEXT: %s", err)
 	}
 
+	cfg, err := config.LoadDefaultConfig(context.TODO())
+	if err != nil {
+		log.Fatalf("failed to load configuration: %v", err)
+	}
 	return &sneaker.Manager{
-		Objects: s3.New(session.New()),
+		Objects: s3.NewFromConfig(cfg),
 		Envelope: sneaker.Envelope{
-			KMS: kms.New(session.New()),
+			KMS: kms.NewFromConfig(cfg),
 		},
 		Bucket:            u.Host,
 		Prefix:            u.Path,

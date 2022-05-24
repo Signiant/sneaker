@@ -1,15 +1,17 @@
 package sneaker
 
 import (
+	"context"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/binary"
+	"errors"
 	"fmt"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/service/kms"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/kms"
+	"github.com/aws/aws-sdk-go-v2/service/kms/types"
 )
 
 // An Envelope encrypts and decrypts secrets with single-use KMS data keys using
@@ -22,9 +24,9 @@ type Envelope struct {
 // with AES-256-GCM using a random nonce. The ciphertext is appended to the
 // nonce, which is in turn appended to the KMS data key ciphertext and returned.
 func (e *Envelope) Seal(keyID string, ctxt map[string]string, plaintext []byte) ([]byte, error) {
-	key, err := e.KMS.GenerateDataKey(&kms.GenerateDataKeyInput{
-		EncryptionContext: e.context(ctxt),
-		KeySpec:           aws.String("AES_256"),
+	key, err := e.KMS.GenerateDataKey(context.TODO(), &kms.GenerateDataKeyInput{
+		EncryptionContext: ctxt,
+		KeySpec:           "AES_256",
 		KeyId:             &keyID,
 	})
 	if err != nil {
@@ -45,15 +47,14 @@ func (e *Envelope) Seal(keyID string, ctxt map[string]string, plaintext []byte) 
 func (e *Envelope) Open(ctxt map[string]string, ciphertext []byte) ([]byte, error) {
 	key, ciphertext := split(ciphertext)
 
-	d, err := e.KMS.Decrypt(&kms.DecryptInput{
+	d, err := e.KMS.Decrypt(context.TODO(), &kms.DecryptInput{
 		CiphertextBlob:    key,
-		EncryptionContext: e.context(ctxt),
+		EncryptionContext: ctxt,
 	})
 	if err != nil {
-		if apiErr, ok := err.(awserr.Error); ok {
-			if apiErr.Code() == "InvalidCiphertextException" {
-				return nil, fmt.Errorf("unable to decrypt data key")
-			}
+		var ict *types.InvalidCiphertextException
+		if errors.As(err, &ict) {
+			return nil, fmt.Errorf("unable to decrypt data key")
 		}
 		return nil, err
 	}

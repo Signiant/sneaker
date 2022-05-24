@@ -5,8 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
 
 func TestListPattern(t *testing.T) {
@@ -15,23 +16,23 @@ func TestListPattern(t *testing.T) {
 	fakeS3 := &FakeS3{
 		ListOutputs: []s3.ListObjectsOutput{
 			{
-				Contents: []*s3.Object{
+				Contents: []types.Object{
 					{
 						Key:          aws.String("secrets/one"),
 						ETag:         aws.String(`"etag1"`),
-						Size:         aws.Int64(1004 + 224),
+						Size:         int64(1004 + 224),
 						LastModified: aws.Time(time.Date(2006, 1, 2, 15, 4, 5, 0, utc1)),
 					},
 					{
 						Key:          aws.String("secrets/two"),
 						ETag:         aws.String(`"etag2"`),
-						Size:         aws.Int64(1005 + 224),
+						Size:         int64(1005 + 224),
 						LastModified: aws.Time(time.Date(2007, 1, 2, 15, 4, 5, 0, utc1)),
 					},
 					{
 						Key:          aws.String("secrets/winkle"),
 						ETag:         aws.String(`"etag3"`),
-						Size:         aws.Int64(1006 + 224),
+						Size:         int64(1006 + 224),
 						LastModified: aws.Time(time.Date(2008, 1, 2, 15, 4, 5, 0, utc1)),
 					},
 				},
@@ -86,23 +87,23 @@ func TestListNoPattern(t *testing.T) {
 	fakeS3 := &FakeS3{
 		ListOutputs: []s3.ListObjectsOutput{
 			{
-				Contents: []*s3.Object{
+				Contents: []types.Object{
 					{
 						Key:          aws.String("secrets/one"),
 						ETag:         aws.String(`"etag1"`),
-						Size:         aws.Int64(1004 + 224),
+						Size:         int64(1004 + 224),
 						LastModified: aws.Time(time.Date(2006, 1, 2, 15, 4, 5, 0, utc1)),
 					},
 					{
 						Key:          aws.String("secrets/two"),
 						ETag:         aws.String(`"etag2"`),
-						Size:         aws.Int64(1005 + 224),
+						Size:         int64(1005 + 224),
 						LastModified: aws.Time(time.Date(2007, 1, 2, 15, 4, 5, 0, utc1)),
 					},
 					{
 						Key:          aws.String("secrets/winkle"),
 						ETag:         aws.String(`"etag3"`),
-						Size:         aws.Int64(1006 + 224),
+						Size:         int64(1006 + 224),
 						LastModified: aws.Time(time.Date(2008, 1, 2, 15, 4, 5, 0, utc1)),
 					},
 				},

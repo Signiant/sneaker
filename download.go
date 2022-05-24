@@ -1,18 +1,19 @@
 package sneaker
 
 import (
+	"context"
 	"io/ioutil"
 	fpath "path"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 // Download fetches and decrypts the given secrets.
 func (m *Manager) Download(paths []string) (map[string][]byte, error) {
 	secrets := make(map[string][]byte, len(paths))
 	for _, path := range paths {
-		resp, err := m.Objects.GetObject(&s3.GetObjectInput{
+		resp, err := m.Objects.GetObject(context.TODO(), &s3.GetObjectInput{
 			Bucket: aws.String(m.Bucket),
 			Key:    aws.String(fpath.Join(m.Prefix, path)),
 		})

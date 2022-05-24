@@ -2,12 +2,13 @@ package sneaker
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"io/ioutil"
 	fpath "path"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 // Upload encrypts the given secret with a KMS data key and uploads it to S3.
@@ -22,9 +23,9 @@ func (m *Manager) Upload(path string, r io.Reader) error {
 		return err
 	}
 
-	if _, err := m.Objects.PutObject(
+	if _, err := m.Objects.PutObject(context.TODO(),
 		&s3.PutObjectInput{
-			ContentLength: aws.Int64(int64(len(ciphertext))),
+			ContentLength: int64(len(ciphertext)),
 			ContentType:   aws.String(contentType),
 			Bucket:        aws.String(m.Bucket),
 			Key:           aws.String(fpath.Join(m.Prefix, path)),

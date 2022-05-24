@@ -6,9 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/kms"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/kms"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 func TestUpload(t *testing.T) {
@@ -53,7 +53,7 @@ func TestUpload(t *testing.T) {
 		t.Errorf("Key was %q, but expected %q", v, want)
 	}
 
-	if v, want := *putReq.ContentLength, int64(59); v != want {
+	if v, want := putReq.ContentLength, int64(59); v != want {
 		t.Errorf("ContentLength was %d, but expected %d", v, want)
 	}
 

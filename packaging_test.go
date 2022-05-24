@@ -8,8 +8,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/kms"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/kms"
 )
 
 func TestPackagingRoundTrip(t *testing.T) {
@@ -81,11 +81,11 @@ func TestPackagingRoundTrip(t *testing.T) {
 		t.Errorf("Key ID was %q, but expected %q", v, want)
 	}
 
-	if v, want := *genReq.KeySpec, "AES_256"; v != want {
+	if v, want := string(genReq.KeySpec), "AES_256"; v != want {
 		t.Errorf("Key spec was %v, but expected %v", v, want)
 	}
 
-	if v, want := fromAWS(genReq.EncryptionContext), context; !reflect.DeepEqual(v, want) {
+	if v, want := genReq.EncryptionContext, context; !reflect.DeepEqual(v, want) {
 		t.Errorf("Encryption context was %#v, but expected %#v", v, want)
 	}
 
@@ -95,19 +95,7 @@ func TestPackagingRoundTrip(t *testing.T) {
 		t.Errorf("Ciphertext Blob was %v, but expected %v", v, want)
 	}
 
-	if v, want := fromAWS(decReq.EncryptionContext), context; !reflect.DeepEqual(v, want) {
+	if v, want := decReq.EncryptionContext, context; !reflect.DeepEqual(v, want) {
 		t.Errorf("Encryption context was %#v, but expected %#v", v, want)
 	}
-}
-
-func fromAWS(m map[string]*string) map[string]string {
-	if m == nil {
-		return nil
-	}
-
-	res := make(map[string]string, len(m))
-	for k, v := range m {
-		res[k] = *v
-	}
-	return res
 }

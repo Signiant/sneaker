@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/kms"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/kms"
 )
 
 func TestEnvelopeRoundTrip(t *testing.T) {

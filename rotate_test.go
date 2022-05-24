@@ -6,9 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/kms"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/kms"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
 
 func TestRotate(t *testing.T) {
@@ -33,11 +34,11 @@ func TestRotate(t *testing.T) {
 	fakeS3 := &FakeS3{
 		ListOutputs: []s3.ListObjectsOutput{
 			{
-				Contents: []*s3.Object{
+				Contents: []types.Object{
 					{
 						Key:          aws.String("secrets/weeble.txt"),
 						ETag:         aws.String(`"etag1"`),
-						Size:         aws.Int64(1004),
+						Size:         int64(1004),
 						LastModified: aws.Time(time.Date(2006, 1, 2, 15, 4, 5, 0, time.UTC)),
 					},
 				},
@@ -90,7 +91,7 @@ func TestRotate(t *testing.T) {
 		t.Errorf("Key ID was %q, but expected %q", v, want)
 	}
 
-	if v, want := *genReq.KeySpec, "AES_256"; v != want {
+	if v, want := string(genReq.KeySpec), "AES_256"; v != want {
 		t.Errorf("Key spec was %v, but expected %v", v, want)
 	}
 
@@ -103,7 +104,7 @@ func TestRotate(t *testing.T) {
 		t.Errorf("Key was %q, but expected %q", v, want)
 	}
 
-	if v, want := *putReq.ContentLength, int64(63); v != want {
+	if v, want := putReq.ContentLength, int64(63); v != want {
 		t.Errorf("ContentLength was %d, but expected %d", v, want)
 	}
 

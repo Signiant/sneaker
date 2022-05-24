@@ -4,26 +4,27 @@
 package sneaker
 
 import (
+	"context"
 	"fmt"
 	fpath "path"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/kms"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/kms"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 // ObjectStorage is a sub-set of the capabilities of the S3 client.
 type ObjectStorage interface {
-	ListObjects(*s3.ListObjectsInput) (*s3.ListObjectsOutput, error)
-	DeleteObject(*s3.DeleteObjectInput) (*s3.DeleteObjectOutput, error)
-	PutObject(*s3.PutObjectInput) (*s3.PutObjectOutput, error)
-	GetObject(*s3.GetObjectInput) (*s3.GetObjectOutput, error)
+	ListObjects(context.Context, *s3.ListObjectsInput, ...func(*s3.Options)) (*s3.ListObjectsOutput, error)
+	DeleteObject(context.Context, *s3.DeleteObjectInput, ...func(*s3.Options)) (*s3.DeleteObjectOutput, error)
+	PutObject(context.Context, *s3.PutObjectInput, ...func(*s3.Options)) (*s3.PutObjectOutput, error)
+	GetObject(context.Context, *s3.GetObjectInput, ...func(*s3.Options)) (*s3.GetObjectOutput, error)
 }
 
 // KeyManagement is a sub-set of the capabilities of the KMS client.
 type KeyManagement interface {
-	GenerateDataKey(*kms.GenerateDataKeyInput) (*kms.GenerateDataKeyOutput, error)
-	Decrypt(*kms.DecryptInput) (*kms.DecryptOutput, error)
+	GenerateDataKey(context.Context, *kms.GenerateDataKeyInput, ...func(*kms.Options)) (*kms.GenerateDataKeyOutput, error)
+	Decrypt(context.Context, *kms.DecryptInput, ...func(*kms.Options)) (*kms.DecryptOutput, error)
 }
 
 // A File is an encrypted secret, stored in S3.
