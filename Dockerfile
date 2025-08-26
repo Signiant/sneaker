@@ -1,26 +1,15 @@
 ##
 ## Build
 ##
-
-FROM golang:alpine AS build
-
-# Git is required for fetching dependencies
-# build-base is required for cgo in go test
-RUN apk update && apk add --no-cache build-base git
+FROM golang:1.23 AS build
 
 WORKDIR /app
 COPY . .
-RUN go test && cd cmd/sneaker && go build -o /sneaker
+RUN go test && CGO_ENABLED=0 go build -ldflags="-s -w" -o /sneaker ./cmd/sneaker
 
 ##
 ## Deploy
 ##
-FROM alpine:latest
-
-WORKDIR /
+FROM gcr.io/distroless/static:nonroot
 COPY --from=build /sneaker /sneaker
-
-RUN adduser -D nonroot
-
-USER nonroot
 ENTRYPOINT ["/sneaker"]
