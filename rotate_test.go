@@ -2,14 +2,15 @@ package sneaker
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"testing"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/kms"
+	"github.com/aws/aws-sdk-go-v2/service/kms/types"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/aws-sdk-go-v2/service/s3/types"
+	s3types "github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
 
 func TestRotate(t *testing.T) {
@@ -34,11 +35,11 @@ func TestRotate(t *testing.T) {
 	fakeS3 := &FakeS3{
 		ListOutputs: []s3.ListObjectsOutput{
 			{
-				Contents: []types.Object{
+				Contents: []s3types.Object{
 					{
 						Key:          aws.String("secrets/weeble.txt"),
 						ETag:         aws.String(`"etag1"`),
-						Size:         int64(1004),
+						Size:         aws.Int64(int64(1004)),
 						LastModified: aws.Time(time.Date(2006, 1, 2, 15, 4, 5, 0, time.UTC)),
 					},
 				},
@@ -46,7 +47,7 @@ func TestRotate(t *testing.T) {
 		},
 		GetOutputs: []s3.GetObjectOutput{
 			{
-				Body: ioutil.NopCloser(bytes.NewReader(oldCiphertext)),
+				Body: io.NopCloser(bytes.NewReader(oldCiphertext)),
 			},
 		},
 		PutOutputs: []s3.PutObjectOutput{
@@ -91,7 +92,7 @@ func TestRotate(t *testing.T) {
 		t.Errorf("Key ID was %q, but expected %q", v, want)
 	}
 
-	if v, want := string(genReq.KeySpec), "AES_256"; v != want {
+	if v, want := genReq.KeySpec, types.DataKeySpecAes256; v != want {
 		t.Errorf("Key spec was %v, but expected %v", v, want)
 	}
 
@@ -104,7 +105,7 @@ func TestRotate(t *testing.T) {
 		t.Errorf("Key was %q, but expected %q", v, want)
 	}
 
-	if v, want := putReq.ContentLength, int64(63); v != want {
+	if v, want := *putReq.ContentLength, int64(63); v != want {
 		t.Errorf("ContentLength was %d, but expected %d", v, want)
 	}
 
@@ -112,7 +113,7 @@ func TestRotate(t *testing.T) {
 		t.Errorf("ContentType was %q, but expected %q", v, want)
 	}
 
-	actual, err := ioutil.ReadAll(putReq.Body)
+	actual, err := io.ReadAll(putReq.Body)
 	if err != nil {
 		t.Fatal(err)
 	}

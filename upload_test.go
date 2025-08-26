@@ -2,7 +2,7 @@ package sneaker
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"strings"
 	"testing"
 
@@ -53,7 +53,7 @@ func TestUpload(t *testing.T) {
 		t.Errorf("Key was %q, but expected %q", v, want)
 	}
 
-	if v, want := putReq.ContentLength, int64(59); v != want {
+	if v, want := *putReq.ContentLength, int64(59); v != want {
 		t.Errorf("ContentLength was %d, but expected %d", v, want)
 	}
 
@@ -61,7 +61,7 @@ func TestUpload(t *testing.T) {
 		t.Errorf("ContentType was %q, but expected %q", v, want)
 	}
 
-	actual, err := ioutil.ReadAll(putReq.Body)
+	actual, err := io.ReadAll(putReq.Body)
 	if err != nil {
 		t.Fatal(err)
 	}

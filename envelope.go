@@ -26,7 +26,7 @@ type Envelope struct {
 func (e *Envelope) Seal(keyID string, ctxt map[string]string, plaintext []byte) ([]byte, error) {
 	key, err := e.KMS.GenerateDataKey(context.TODO(), &kms.GenerateDataKeyInput{
 		EncryptionContext: ctxt,
-		KeySpec:           "AES_256",
+		KeySpec:           types.DataKeySpecAes256,
 		KeyId:             &keyID,
 	})
 	if err != nil {
